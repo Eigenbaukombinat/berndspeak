@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import shlex
 import logging
 import os
 import time
@@ -18,6 +19,7 @@ CMD_PSA = 'espeak -v mb-de4 -s 150 -a 100 -p 200 "{}" -w out.wav && play out.wav
 CMD = 'espeak -v mb-de4 -s 130 -a 100 -p 0 "{}"'
 
 
+
 def mqtt_received(client, data, msg):
     text = msg.payload.decode('utf8')
     if msg.topic == 'space/bernd/speak/chat':
@@ -25,10 +27,10 @@ def mqtt_received(client, data, msg):
         if len(splitted) != 2:
             return
         name, speaktext = splitted
-        os.system(CMD_PSA.format("Nachricht aus dem tschätt von {}.".format(name)))
+        os.system(CMD_PSA.format("Nachricht aus dem tschätt von {}.".format(shlex.quote(name))))
     else:
         speaktext = text
-    os.system(CMD.format(speaktext))
+    os.system(CMD.format(shlex.quote(speaktext)))
 
 
 mqtt_client.on_message = mqtt_received
